@@ -1,11 +1,13 @@
+clc
+clear
 % Import data file as matrix
 airfoil = dlmread('NACA 4404 Data.txt');
 airfoil = airfoil';
  
 % Input Variables
 r = .5; %m
-r_min = 0; %m
-sections = 5;
+r_min = 0.05; %m
+sections = 6;
 c_max = r/2;
 v_tip = .7*240; %m/s
 L_min = 11.5; % N
@@ -45,6 +47,8 @@ ts = zeros(1,sections); % thickness
 masses = zeros(1,sections); % mass
 inertias = zeros(1,sections); % moment of inertia
 powers = zeros(1,sections); % required power
+
+success_blades = [];
  
 z = 0;
 for c = cs
@@ -71,6 +75,7 @@ for c = cs
         round(Re,-3);
         maxclcd = 0;
         y = 1;
+        n = 1;
         for x = airfoil % iterate through data
             if x(2) < Re+1 && x(2) > Re-1 % find max cl/cd at Reynolds number
                 clcd = x(3)/x(4);
@@ -100,10 +105,10 @@ for c = cs
     AR = r^2/A; % aspect ratio
     Di = (sum(cls)/sections)^2/pi/AR; % minimum induced drag
     D_total = D + Di; % total drag
-    disk_A  = pi*r^2;
-    P = (L + D_total)^1.5/(2*rho*disk_A)^.5;
+    P = (L + D_total)^1.5/(2*rho*A_disk)^.5;
     %L_min = L_min + 16*3.711*mass;
     if L > L_min && P < P_max
+        solidity = A / A_disk;
         cd = mean(cds);
         M_pitch = sum(Ms_pitch); % pitching moment
         M_drag = sum(Ms_drag); % moment from drag
@@ -121,9 +126,12 @@ for c = cs
         fprintf('Moment of Inertia: %.3f Nm\n',inertia)
         fprintf('Average Drag Coeffiecient: %.3f\n',cd)
         fprintf('Required Power: %.3f W\n',P)
-        c
         z = z+1;
+        storage.solidity = solidity;
+        storage.mass = mass;
+        storage.CD0 = cd;
+        storage.radius = r;
+        success_blades = [success_blades, storage];
     end
- 
 end
-fprintf('Total Possible Blades: %d\n',z);    
+fprintf('Total Possible Blades: %d\n',z);
