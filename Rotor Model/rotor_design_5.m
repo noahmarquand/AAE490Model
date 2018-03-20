@@ -13,7 +13,7 @@ P_max = 1000; % W
  
 % Constants
 rho = .02; %kg/m^3
-mu = 1.422e-5; %kg/m/s
+mu = 1.422*10^-5; %kg/m/s
 material_rho = 1600; %kg/m^3    effective density of material taking empty space into account
 thickness = .04; %x/c    average thickness of airfoil
  
@@ -47,7 +47,7 @@ powers = zeros(1,sections); % required power
 success_blades = [];
  
 z = 0;
-for r = 0.3:0.05:1
+for r = 0.3:0.05:0.7
     r_min = 0.1 * r;
     cs = (r/2)/sections * base_cs;
     for c = cs
@@ -113,25 +113,14 @@ for r = 0.3:0.05:1
             M_pitch = sum(Ms_pitch); % pitching moment
             M_drag = sum(Ms_drag); % moment from drag
             inertia = sum(inertias); % moment of inertia of blade
-    %         fprintf('\n\nSpecifications of Single Blade:\n')
-    %         fprintf('Lift: %.3f N\n',L)
-    %         fprintf('2D Drag: %.3f N\n',D)
-    %         fprintf('Minimum Induced Drag: %.3f N\n',Di)
-    %         fprintf('Total Drag: %.3f N\n',D_total)
-    %         fprintf('Lift/Drag: %.3f\n\n',L/D_total)
-    %         fprintf('Area: %.3f m^2\n',A)
-    %         fprintf('Mass: %.3f kg\n',mass)
-    %         fprintf('Pitching Moment: %.3f Nm\n',M_pitch)
-    %         fprintf('Drag Moment: %.3f Nm\n',M_drag)
-    %         fprintf('Moment of Inertia: %.3f Nm\n',inertia)
-    %         fprintf('Average Drag Coeffiecient: %.3f\n',cd)
-    %         fprintf('Required Power: %.3f W\n',P)
+            % Store data
             storage.chords = c;
             storage.angles = alphas;
             storage.solidity = solidity;
             storage.mass = mass;
             storage.CD0 = cd;
             storage.radius = r;
+            storage.rpm = v_tip / (2*pi*r) * 60;
             success_blades = [success_blades, storage];
         end
     end
